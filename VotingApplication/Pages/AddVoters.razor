@@ -1,0 +1,45 @@
+﻿@page "/addVoters"
+@using VotingApplication.Services
+@inject VotingStateManager VotingStateManager
+
+<PageTitle>Add</PageTitle>
+
+<h1>Add new voters and candidates!</h1>
+
+<hr style="width:100%;text-align:left;margin-left:0">
+
+<div>
+    <br/>
+    <p><h4>New voter:</h4></p>
+    <input @bind="newVoter" placeholder="Type new voter..."/>
+    <button class="btn btn-primary" type="button" @onclick="AddVoter">Add new voter</button>
+</div>
+<br><br>
+<div>
+    <p><h4>New candidate:</h4></p>
+    <input @bind="newCandidate" placeholder="Type new candidate..."/>
+    <button class="btn btn-primary" type="button" @onclick="AddCandidate">Add new candidate</button>
+</div>
+
+@code {
+    private string newVoter;
+    private string newCandidate;
+    
+    private void AddVoter()
+    {
+        if (!string.IsNullOrWhiteSpace(newVoter))
+        {
+            VotingStateManager.AddNewVoter(newVoter);
+            newVoter = string.Empty;
+        }
+    }
+    
+    private void AddCandidate()
+    {
+        if (!string.IsNullOrWhiteSpace(newCandidate))
+        {
+            VotingStateManager.AddNewCandidate(newCandidate);
+            newCandidate = string.Empty;
+        }
+    }
+}

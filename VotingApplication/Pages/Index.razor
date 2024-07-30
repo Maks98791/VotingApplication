@@ -1,0 +1,169 @@
+﻿@page "/"
+@using VotingApplication.Services
+@inject VotingStateManager VotingStateManager
+
+<PageTitle>VotingApp</PageTitle>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+.row {
+  margin-left:-5px;
+  margin-right:-5px;
+}
+  
+.column {
+  float: left;
+  width: 50%;
+  padding: 5px;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+th, td {
+  text-align: left;
+  padding: 16px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.container .item {
+  flex: 1 0 33%;
+  height: 50px;
+}
+
+</style>
+
+<div class="text-center">
+    <h1 class="display-4">Voting app</h1>
+    <br/>
+</div>
+
+<div class="row">
+    <div class="column">
+        <table>
+            <tr>
+                <th>Voters</th>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <th>Has voted</th>
+            </tr>
+            @if (VotingStateManager.Voters.Count > 0)
+            {
+                @foreach (var voter in VotingStateManager.Voters)
+                {
+                    <tr>
+                        <td>@voter.Key</td>
+                        <td>@voter.Value</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+    <div class="column">
+        <table>
+            <tr>
+                <th>Candidates</th>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <th>Votes</th>
+            </tr>
+            @if (VotingStateManager.Voters.Count > 0)
+            {
+                @foreach (var voter in VotingStateManager.Candidates)
+                {
+                    <tr>
+                        <td>@voter.Key</td>
+                        <td>@voter.Value</td>
+                    </tr>
+                }
+            }
+        </table>
+    </div>
+</div>
+
+<div>
+    <br/>
+    <br/>
+    <hr style="width:100%;text-align:left;margin-left:0">
+    <br/>
+</div>
+
+<div class="text-left">
+    <h1 class="display-6">Vote!</h1>
+    <br/>
+</div>
+
+<div class="container">
+    <div class="item">
+        <p><h4>I am</h4></p>
+        <select @bind="selectedVoter" style="width:400px;height: 30px;">
+            <option value="">Choose voter</option>
+            @foreach (var voter in VotingStateManager.Voters.Where(p => p.Value != "v"))
+            {
+                <option value="@voter.Key">@voter.Key</option>
+            }
+        </select>
+    </div>
+    <div class="item">
+        <p><h4>I vote for</h4></p>
+        <select @bind="selectedCandidate" style="width:400px;height: 30px;">
+            <option value="">Choose candidate</option>
+            @foreach (var candidate in VotingStateManager.Candidates)
+            {
+                <option value="@candidate.Key">@candidate.Key</option>
+            }
+        </select>
+    </div>
+    <div class="item">
+        <br/><br/>
+        <button class="btn btn-primary" style="height:50px;width:120px" type="button" @onclick="Vote">Submit</button>
+    </div>
+</div>
+
+@code
+{
+    private string selectedCandidate;
+    private string selectedVoter;
+    
+    private void Vote()
+    {
+        if (!string.IsNullOrEmpty(selectedVoter) && !string.IsNullOrEmpty(selectedCandidate))
+        {
+            VotingStateManager.UpdateVotes(selectedCandidate, selectedVoter);
+            selectedVoter = string.Empty;
+            selectedCandidate = string.Empty;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        VotingStateManager.OnCandidatesChange += NotifyStateChanged;
+        VotingStateManager.OnVotersChange += NotifyStateChanged;
+    }
+
+    private async Task NotifyStateChanged() => await InvokeAsync(StateHasChanged);
+}
